@@ -15,6 +15,8 @@ type CacheItem struct {
 	createTime  time.Time
 	lastAccess  time.Time
 	accessCount int64
+	//callback func before remove item
+	aboutToExpire []func(key interface{})
 }
 
 func NewItem(key interface{}, data interface{}, lifeTime time.Duration) *CacheItem {
@@ -27,14 +29,15 @@ func NewItem(key interface{}, data interface{}, lifeTime time.Duration) *CacheIt
 		createTime:  time,
 		lastAccess:  time,
 		accessCount: 0,
+		aboutToExpire: nil,
 	}
 }
 
 func (item *CacheItem) KeepAlive() {
 	item.Lock()
 	defer item.Unlock()
-	item.lastAccess = time.Now()
-	item.accessCount++
+	item.lastAccess = time.Now() //update last access time
+	item.accessCount++		  //update access count
 }
 
 //Geter
@@ -68,4 +71,17 @@ func (item *CacheItem) AccessCount() int64 {
 	item.RLock()
 	defer item.RUnlock()
 	return item.accessCount
+}
+
+//aboutToExpire callback func
+func (item *CacheItem) AddAboutToExpire(f func(key interface{})) {
+	item.Lock()
+	defer item.Unlock()
+	item.aboutToExpire = append(item.aboutToExpire, f)
+}
+
+func (item *CacheItem) RemoveAboutToExpireFunc() {
+	item.Lock()
+	defer item.Unlock()
+	item.aboutToExpire = nil
 }

@@ -28,3 +28,5 @@ func (table *CacheTable) Count() int {
 	defer table.RUnlock()
 	return len(table.items)
 }
+
+
