@@ -74,7 +74,7 @@ func (item *CacheItem) AccessCount() int64 {
 }
 
 //aboutToExpire callback func
-func (item *CacheItem) AddAboutToExpire(f func(key interface{})) {
+func (item *CacheItem) AddAboutToExpire(f func(interface{})) {
 	item.Lock()
 	defer item.Unlock()
 	item.aboutToExpire = append(item.aboutToExpire, f)
@@ -84,4 +84,14 @@ func (item *CacheItem) RemoveAboutToExpireFunc() {
 	item.Lock()
 	defer item.Unlock()
 	item.aboutToExpire = nil
+}
+
+//Set aboutToExpire callback func append to the callback queue
+func (item *CacheItem) SetAboutToExpireFunc(f func(interface{})) {
+	if len(item.aboutToExpire) > 0 {
+		item.RemoveAboutToExpireFunc()
+	}
+	item.Lock()
+	defer item.Unlock()
+	item.aboutToExpire = append(item.aboutToExpire, f)
 }

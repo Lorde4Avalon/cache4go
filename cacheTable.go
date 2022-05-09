@@ -15,6 +15,9 @@ type CacheTable struct {
 	items map[interface{}]*CacheItem
 
 	loger *log.Logger
+
+	
+
 }
 
 //table's name
